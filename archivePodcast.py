@@ -4,6 +4,7 @@ import database
 import datetime
 import os
 import requests
+from tqdm import tqdm
 
 # Download entire show
 def main():
@@ -45,7 +46,7 @@ def getEpisodeDetails(show):
     rowid = cursor.fetchone()
     
     # Iterate through shows in page
-    for record in show['page'].find_all('a', {'extendedepisodecell usernewepisode'}):
+    for record in tqdm(show['page'].find_all('a', {'extendedepisodecell usernewepisode'})):
         # Get episode details
         episode = {
             'show': rowid[0],
@@ -53,20 +54,27 @@ def getEpisodeDetails(show):
             'description': record.find('div', {'class': 'lighttext margintop05'}).string.strip(),
             'overcastURL': 'https://overcast.fm{}'.format(record['href'])
             }
-        
-        # Load episode page
-        episodePage = requests.get(episode['overcastURL'])
-        episodeSoup = BeautifulSoup(episodePage.text, "lxml")
-        
-        # Add link to remote episode file and date
-        episode['remoteFile'] = episodeSoup.source['src'].split('#')[0]
-        episode['fileType'] = episode['remoteFile'].split('.')[-1]
-        datestring = episodeSoup.find('div', {'class': 'margintop1'}).div.string.strip()
-        episode['publishDate'] = str(datetime.datetime.strptime(datestring, '%B %d, %Y').date())
 
-        # Download episode and save record to database
-        episode['localFile'] = downloadEpisode(show, episode)
-        database.addRecord(connection, 'episode', episode)
+        # Check if episode included in database
+        sql = 'SELECT EXISTS(SELECT 1 FROM episode WHERE overcastURL="{0}" LIMIT 1);'.format(episode['overcastURL'])
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        included = cursor.fetchone()[0]
+
+        if included == 0:
+            # Load episode page
+            episodePage = requests.get(episode['overcastURL'])
+            episodeSoup = BeautifulSoup(episodePage.text, "lxml")
+            
+            # Add link to remote episode file and date
+            episode['remoteFile'] = episodeSoup.source['src'].split('#')[0]
+            episode['fileType'] = episode['remoteFile'].split('.')[-1]
+            datestring = episodeSoup.find('div', {'class': 'margintop1'}).div.string.strip()
+            episode['publishDate'] = str(datetime.datetime.strptime(datestring, '%B %d, %Y').date())
+
+            # Download episode and save record to database
+            episode['localFile'] = downloadEpisode(show, episode)
+            database.addRecord(connection, 'episode', episode)
 
     connection.close()
 

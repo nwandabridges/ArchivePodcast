@@ -1,6 +1,5 @@
 # Import dependencies
 import sqlite3
-import datetime
 
 def main():
 	dbName = 'podcasts.db'
@@ -59,8 +58,6 @@ def addRecord(connection, table, dictionary):
 	cursor = connection.cursor()
 	cursor.execute(sql, values)
 	connection.commit()
-
-	print('{0}: Successfully added record to database.'.format(str(datetime.datetime.now()))
 
 if __name__ == '__main__':
 	main()
