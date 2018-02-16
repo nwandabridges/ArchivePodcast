@@ -13,8 +13,7 @@ shows = [
 	'https://overcast.fm/itunes1001591287/reconcilable-differences',
 	'https://overcast.fm/itunes415535037/back-to-work',
 	'https://overcast.fm/itunes1030602911/road-work',
-	'https://overcast.fm/itunes277928864/you-look-nice-today',
-	'https://overcast.fm/p782999-cbxAGK'
+	'https://overcast.fm/itunes277928864/you-look-nice-today'
 	]
 
 # Download entire show
