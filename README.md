@@ -1,6 +1,6 @@
 # ArchivePodcast
 
-![](/assets/22053587422_f0294533df_k.jpg)  
+![](assets/22053587422_f0294533df_k.jpg)  
 
 Use this script to download and catalog all episodes of a podcast.
   
@@ -9,9 +9,9 @@ Use this script to download and catalog all episodes of a podcast.
 
 2. Once you've downloaded the scripts, go to [Overcast](https://overcast.fm) and use the search box to find the podcast(s) that you'd like to archive.  
 
-3. Replace lines 10-16 in [archivePodcast.py](./archivePodcast.py) with the podcast URL(s) from Overcast and save the file.
+3. Replace lines 10-16 in [archivePodcast.py](archivePodcast.py) with the podcast URL(s) from Overcast and save the file.
 
-4. Run [archivePodcast.py](./archivePodcast.py).  
+4. Run [archivePodcast.py](archivePodcast.py).  
 
 ## Common Problems
 - This script was written and tested with Python v3.6. It will not work with Python 2.
