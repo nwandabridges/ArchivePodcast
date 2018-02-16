@@ -2,7 +2,7 @@
 
 ![](assets/22053587422_f0294533df_k.jpg?raw=true)  
 
-Use this script to download and catalog all episodes of a podcast.
+**Use this script to download and catalog all episodes of a podcast.**
   
 ## Usage
 1. Clone this repo to your local machine/server to use the script.  
