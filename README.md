@@ -1,10 +1,21 @@
 # ArchivePodcast
 
-I created this script to download all of the episodes in the [Do By Friday After Show](https://www.patreon.com/dobyfriday). It worked well for that, but it doesn't generalize to other podcasts.  
+![](./assets/22053587422_f0294533df_k.jpg)  
+
+Use this script to download and catalog all episodes of a podcast.
   
-I'd like this script to be a utility for downloading all episodes of any podcast.  
-  
-**Outstanding Problems:**
-* RSS feeds are limited to a certain number of items, which means that feeds only contain the most recent *x* episodes. Rather than using RSS feeds, it may make sense to utilize a third-party catalogue like [Overcast](https://overcast.fm/itunes1169249168/do-by-friday).
-* This script currently searches for .mp3 files, but podcasts are published in a variety of file types.
-* Podcast metadata is *somewhat* standardized for iTunes. This script should take advantage of iTunes-like notation for retrieving episode/show metadata.
+## Usage
+1. Clone this repo to your local machine/server to use the script.  
+
+2. Once you've downloaded the scripts, go to [Overcast](https://overcast.fm) and use the search box to find the podcast(s) that you'd like to archive.  
+
+3. Replace lines 10-16 in [archivePodcast.py](./archivePodcast.py) with the podcast URL(s) from Overcast and save the file.
+
+4. Run [archivePodcast.py](./archivePodcast.py).  
+
+## Common Problems
+- This script was written and tested with Python v3.6. It will not work with Python 2.
+- This script utilizes several common external dependencies:
+	- BeautifulSoup (for parsing html) `pip install beautifulsoup4`
+	- Requests (for downloading webpages and content) `pip install requests`
+	- lxml (for parsing web html) `pip install lxml`
