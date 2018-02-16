@@ -1,10 +1,16 @@
 # Import dependencies
 from bs4 import BeautifulSoup
+import database
 import datetime
 import os
 import requests
 
-showURL = 'https://overcast.fm/itunes617416468/accidental-tech-podcast'
+# Download entire show
+def main():
+    database.main()
+    showURL = 'https://overcast.fm/itunes617416468/accidental-tech-podcast'
+    show = getShowDetails(showURL)
+    getEpisodeDetails(show)
 
 def getShowDetails(showURL):
     # Download show feed
@@ -18,19 +24,31 @@ def getShowDetails(showURL):
         'name': showSoup.find('h2', {'class': 'centertext'}).string,
         'link': showSoup.find('h2', {'class': 'margintop05 marginbottom0'}).a['href'],
         'description': showSoup.find('div', {'class':'margintop1 marginbottom1 lighttext'}).string.strip(),
-        'overcastURL': showURL,
-        'page': showSoup
+        'overcastURL': showURL
         }
+
+    # Write show to database
+    connection = database.connect('podcasts.db')
+    database.addRecord(connection, 'show', show)
+    connection.close()
+
+    show['page'] = showSoup
+
     return show
 
 def getEpisodeDetails(show):
-    # Create list to hold episodes
-    episodes = []
+    # Get show details from database
+    sql = "SELECT rowid FROM show WHERE overcastURL = '{}'".format(show['overcastURL'])
+    connection = database.connect('podcasts.db')
+    cursor = connection.cursor()
+    cursor.execute(sql)
+    rowid = cursor.fetchone()
     
     # Iterate through shows in page
     for record in show['page'].find_all('a', {'extendedepisodecell usernewepisode'}):
         # Get episode details
         episode = {
+            'show': rowid[0],
             'name': record.find('div', {'class': 'title singleline'}).string,
             'description': record.find('div', {'class': 'lighttext margintop05'}).string.strip(),
             'overcastURL': 'https://overcast.fm{}'.format(record['href'])
@@ -44,27 +62,26 @@ def getEpisodeDetails(show):
         episode['remoteFile'] = episodeSoup.source['src'].split('#')[0]
         episode['fileType'] = episode['remoteFile'].split('.')[-1]
         datestring = episodeSoup.find('div', {'class': 'margintop1'}).div.string.strip()
-        episode['publishDate'] = datetime.datetime.strptime(datestring, '%B %d, %Y').date()
-        
-        # Add episode to list of episodes
-        episodes.append(episode)
-    
-    show['episodes'] = episodes
-    
-    return show
+        episode['publishDate'] = str(datetime.datetime.strptime(datestring, '%B %d, %Y').date())
 
-def downloadEpisodes(show):
+        # Download episode and save record to database
+        episode['localFile'] = downloadEpisode(show, episode)
+        database.addRecord(connection, 'episode', episode)
+
+    connection.close()
+
+def downloadEpisode(show, episode):
     # Create folder if folder doesn't exist
     if not os.path.exists(show['name']):
         os.makedirs(show['name'])
 
     # Download and store each episode
-    for episode in show['episodes']:
-        file = requests.get(episode['remoteFile'])
-        with open('{}/{} {}.{}'.format(show['name'], episode['publishDate'], episode['name'], episode['fileType']), 'wb') as audio:
-            audio.write(file.content)
+    file = requests.get(episode['remoteFile'])
+    fileName = '{}/{} {}.{}'.format(show['name'], episode['publishDate'], episode['name'], episode['fileType'])
+    with open(fileName, 'wb') as audio:
+        audio.write(file.content)
 
-# Run processes
-show = getShowDetails(showURL)
-show = getEpisodeDetails(show)
-downloadEpisodes(show)
+    return fileName
+
+if __name__ == '__main__':
+    main()
