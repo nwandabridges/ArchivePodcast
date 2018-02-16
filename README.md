@@ -1,5 +1,3 @@
-# ArchivePodcast
-
 ![](assets/22053587422_f0294533df_k.jpg?raw=true)  
 
 **Use this script to download and catalog all episodes of a podcast.**
